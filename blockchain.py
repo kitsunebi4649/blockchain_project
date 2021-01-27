@@ -167,7 +167,9 @@ class BlockChain(object):
             sender_blockchain_address=MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
             value=MINING_REWARD)
-        nonce = self.proof_of_work()
+        self.thread_mining = threading.Thread(target=self.proof_of_work)
+        nonce = self.thread_mining.start()
+        print('nonce!!:', str(nonce))
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)
         logger.info({'action': 'mining', 'status': 'success'})

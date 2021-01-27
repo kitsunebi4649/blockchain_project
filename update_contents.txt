@@ -3,4 +3,4 @@
 赤い波線を消去
 マイニングを実装(0.01秒のsleep)
     MINING_TIMER_SECがまだ残ってしまっている
-    sleepが邪魔してアクセスできない
+    sleepが邪魔してアクセスできない（スレッド (threading),スレッドプール (concurrent.futures))が必要
