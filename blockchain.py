@@ -157,6 +157,7 @@ class BlockChain(object):
         while self.valid_proof(transactions, previous_hash, nonce) is False:
             nonce += 1
             time.sleep(0.01)
+            print(nonce)
         return nonce
 
     def mining(self):
@@ -167,8 +168,9 @@ class BlockChain(object):
             sender_blockchain_address=MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
             value=MINING_REWARD)
-        self.thread_mining = threading.Thread(target=self.proof_of_work)
-        nonce = self.thread_mining.start()
+        # self.thread_mining = threading.Thread(target=self.proof_of_work)
+        # nonce = self.thread_mining.start()
+        nonce = self.proof_of_work()
         print('nonce!!:', str(nonce))
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)
