@@ -87,9 +87,9 @@ def transaction():
             return jsonify({'message': 'fail'}), 400
         return jsonify({'message': 'success'}), 200
 
-    if request.method == 'DELETE':
-        block_chain.transaction_pool = []
-        return jsonify({'message': 'success'}), 200
+    if request.method == 'DELETE':  # TODO
+        block_chain.transaction_pool = []  #
+        return jsonify({'message': 'success'}), 200  #
 
 
 @app.route('/mine', methods=['GET'])

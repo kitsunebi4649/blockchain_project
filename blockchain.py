@@ -15,7 +15,7 @@ import utils
 MINING_DIFFICULTY = 3
 MINING_SENDER = 'THE BLOCKCHAIN'
 MINING_REWARD = 10
-MINING_TIMER_SEC = 20
+MINING_TIMER_SEC = 0
 
 BLOCKCHAIN_PORT_RANGE = (5000, 5003)
 NEIGHBOURS_IP_RANGE_NUM = (0, 1)
@@ -71,8 +71,8 @@ class BlockChain(object):
         self.chain.append(block)
         self.transaction_pool = []
 
-        for node in self.neighbours:
-            requests.delete(f'http://{node}/transactions')
+        for node in self.neighbours:  # TODO
+            requests.delete(f'http://{node}/transactions')  #
 
         return block
 
@@ -156,6 +156,7 @@ class BlockChain(object):
         nonce = 0
         while self.valid_proof(transactions, previous_hash, nonce) is False:
             nonce += 1
+            time.sleep(0.01)
         return nonce
 
     def mining(self):
