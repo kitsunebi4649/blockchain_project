@@ -1,6 +1,7 @@
 import base58
 import codecs
 import hashlib
+import qrcode
 
 from ecdsa import NIST256p
 from ecdsa import SigningKey
@@ -14,6 +15,8 @@ class Wallet(object):
         self._private_key = SigningKey.generate(curve=NIST256p)
         self._public_key = self._private_key.get_verifying_key()
         self._blockchain_address = self.generate_blockchain_address()
+        self.private_key_qrcode = qrcode.make(self._private_key.to_string().hex())
+        self.private_key_qrcode.save('private_key_qrcode.png')
 
     @property
     def private_key(self):

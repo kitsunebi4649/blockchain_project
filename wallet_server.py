@@ -21,7 +21,8 @@ def create_wallet():
     my_wallet = wallet.Wallet()
     response = {
         'private_key': my_wallet.private_key,
-        'public_key': my_wallet.public_key,
+        # 'private_key_qrcode': my_wallet.private_key_qrcode,
+        # 'public_key': my_wallet.public_key,
         'blockchain_address': my_wallet.blockchain_address,
     }
     return jsonify(response), 200
