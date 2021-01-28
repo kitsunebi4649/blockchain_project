@@ -10,9 +10,24 @@
                  url: '/wallet',
                  type: 'POST',
                  success: function (response) {
-                     $('#public_key').val(response['public_key']);
-                     $('#private_key').val(response['private_key']);
-                     $('#blockchain_address').val(response['blockchain_address']);
+                   function getParam(name, url) {
+                       if (!url) url = window.location.href;
+                       name = name.replace(/[\[\]]/g, "\\$&");
+                       var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                       results = regex.exec(url);
+                       if (!results) return null;
+                       if (!results[2]) return '';
+                       return decodeURIComponent(results[2].replace(/\+/g, " "));
+                    }
+                     if (getParam('public_key') == null){
+                         $('#public_key').val(response['public_key']);}
+                     else{$('#public_key').val(getParam('public_key'));}
+                      if (getParam('private_key') == null){
+                         $('#private_key').val(response['private_key']);}
+                     else{$('#private_key').val(getParam('private_key'));}
+                     if (getParam('blockchain_address') == null){
+                         $('#blockchain_address').val(response['blockchain_address']);}
+                     else{$('#blockchain_address').val(getParam('blockchain_address'));}
                      document.getElementById('private_key_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['private_key']);
                      document.getElementById('blockchain_address_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['blockchain_address']);
                      console.info(response);

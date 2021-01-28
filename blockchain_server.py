@@ -4,6 +4,7 @@ from flask import request
 
 import wallet
 import blockchain
+import utils
 
 app = Flask(__name__)
 cache = {}
@@ -13,6 +14,8 @@ def get_blockchain():
     cached_blockchain = cache.get('blockchain')
     if not cached_blockchain:
         miners_wallet = wallet.Wallet()
+        utils.generate_qrcode(private_key=miners_wallet.private_key, public_key=miners_wallet.public_key,
+                              blockchain_address=miners_wallet.blockchain_address, port=port)
         cache['blockchain'] = blockchain.BlockChain(
             blockchain_address=miners_wallet.blockchain_address,
             port=app.config['port'])

@@ -2,6 +2,7 @@ import collections
 import logging
 import re
 import socket
+import qrcode
 
 logger = logging.getLogger(__name__)
 
@@ -74,3 +75,13 @@ def get_host():
     except Exception as ex:
         logger.debug({'action': 'get_host', 'ex': ex})
     return '127.0.0.1'
+
+
+def generate_qrcode(private_key, public_key, blockchain_address, port):
+    if port == 5000:  # 応急処置
+        result = qrcode.make('192.168.0.3:8080/?' + 'private_key='  # 固定値注意 (IPと8080)
+                         + str(private_key) + '&' + 'public_key='
+                         + str(public_key) + '&' + 'blockchain_address='
+                         + str(blockchain_address))
+        name = str(port) + "'s_address.png"
+        result.save(name)
