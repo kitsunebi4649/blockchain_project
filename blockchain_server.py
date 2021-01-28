@@ -87,9 +87,9 @@ def transaction():
             return jsonify({'message': 'fail'}), 400
         return jsonify({'message': 'success'}), 200
 
-    if request.method == 'DELETE':  # TODO
-        block_chain.transaction_pool = []  #
-        return jsonify({'message': 'success'}), 200  #
+    if request.method == 'DELETE':
+        block_chain.transaction_pool = []
+        return jsonify({'message': 'success'}), 200
 
 
 @app.route('/mine', methods=['GET'])
@@ -124,6 +124,7 @@ def get_total_amount():
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
+
     parser = ArgumentParser()
     parser.add_argument('-p', '--port', default=5000,
                         type=int, help='port to listen on')

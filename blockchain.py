@@ -15,7 +15,7 @@ import utils
 MINING_DIFFICULTY = 3
 MINING_SENDER = 'THE BLOCKCHAIN'
 MINING_REWARD = 10
-MINING_TIMER_SEC = 0
+MINING_TIMER_SEC = 20
 
 BLOCKCHAIN_PORT_RANGE = (5000, 5003)
 NEIGHBOURS_IP_RANGE_NUM = (0, 1)
@@ -71,8 +71,8 @@ class BlockChain(object):
         self.chain.append(block)
         self.transaction_pool = []
 
-        for node in self.neighbours:  # TODO
-            requests.delete(f'http://{node}/transactions')  #
+        for node in self.neighbours:
+            requests.delete(f'http://{node}/transactions')
 
         return block
 
@@ -99,7 +99,7 @@ class BlockChain(object):
             if (self.calculate_total_amount(sender_blockchain_address)
                     < float(value)):
                 logger.error(
-                        {'action': 'add_transaction', 'error': 'no_value'})
+                    {'action': 'add_transaction', 'error': 'no_value'})
                 return False
 
             self.transaction_pool.append(transaction)
@@ -148,7 +148,7 @@ class BlockChain(object):
             'previous_hash': previous_hash
         })
         guess_hash = self.hash(guess_block)
-        return guess_hash[:difficulty] == '0'*difficulty
+        return guess_hash[:difficulty] == '0' * difficulty
 
     def proof_of_work(self):
         transactions = self.transaction_pool.copy()
@@ -156,8 +156,6 @@ class BlockChain(object):
         nonce = 0
         while self.valid_proof(transactions, previous_hash, nonce) is False:
             nonce += 1
-            time.sleep(0.01)
-            print(nonce)
         return nonce
 
     def mining(self):
@@ -168,10 +166,7 @@ class BlockChain(object):
             sender_blockchain_address=MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
             value=MINING_REWARD)
-        # self.thread_mining = threading.Thread(target=self.proof_of_work)
-        # nonce = self.thread_mining.start()
         nonce = self.proof_of_work()
-        print('nonce!!:', str(nonce))
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)
         logger.info({'action': 'mining', 'status': 'success'})
