@@ -11,9 +11,9 @@
                  type: 'POST',
                  success: function (response) {
                      /*$('#public_key').val(response['public_key']);*/
-                     /*$('#private_key_qrcode').png(response['private_key_qrcode']);*/
                      $('#private_key').val(response['private_key']);
                      $('#blockchain_address').val(response['blockchain_address']);
+                     document.getElementById('private_key_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['private_key']);
                      console.info(response);
                  },
                  error: function (error) {
@@ -94,7 +94,7 @@
         <textarea id="public_key" rows="2" cols="100" spellcheck="false"></textarea>
         -->
         <p>Private Key QRcode</p>
-        <!--<img src="private_key_qrcode.png">-->
+        <img id="private_key_qrcode" width="100" height="100">
         <p>Private Key</p>
         <textarea id="private_key" rows="1" cols="100" spellcheck="false"></textarea>
         <p>Blockchain Address</p>
