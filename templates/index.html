@@ -25,10 +25,10 @@
                      if (getParam('blockchain_address') == null){
                          $('#blockchain_address').val(response['blockchain_address']);}
                      else{$('#blockchain_address').val(getParam('blockchain_address'));}
-                     document.getElementById('private_key_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['private_key']);
-                     document.getElementById('blockchain_address_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['blockchain_address']);
-                     $('wallet_qrcode_element').
-                     document.getElementById('wallet_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['blockchain_address']);
+                     document.getElementById('private_key_qrcode').src
+                     = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + (response['private_key']);
+                     document.getElementById('blockchain_address_qrcode').src
+                     = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + (response['blockchain_address']);
                      console.info(response);
                  },
                  error: function (error) {
