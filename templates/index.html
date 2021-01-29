@@ -19,10 +19,7 @@
                        if (!results[2]) return '';
                        return decodeURIComponent(results[2].replace(/\+/g, " "));
                     }
-                     if (getParam('public_key') == null){
-                         $('#public_key').val(response['public_key']);}
-                     else{$('#public_key').val(getParam('public_key'));}
-                      if (getParam('private_key') == null){
+                     if (getParam('private_key') == null){
                          $('#private_key').val(response['private_key']);}
                      else{$('#private_key').val(getParam('private_key'));}
                      if (getParam('blockchain_address') == null){
@@ -30,6 +27,8 @@
                      else{$('#blockchain_address').val(getParam('blockchain_address'));}
                      document.getElementById('private_key_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['private_key']);
                      document.getElementById('blockchain_address_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['blockchain_address']);
+                     $('wallet_qrcode_element').
+                     document.getElementById('wallet_qrcode').src = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + (response['blockchain_address']);
                      console.info(response);
                  },
                  error: function (error) {
@@ -47,9 +46,9 @@
 
                 let transaction_data = {
                     'sender_private_key': $('#private_key').val(),
-                    'sender_blockchain_address': $('#blockchain_address').val(),
+                    /*'sender_blockchain_address': $('#blockchain_address').val(),*/
                     'recipient_blockchain_address': $('#recipient_blockchain_address').val(),
-                    'sender_public_key': $('#public_key').val(),
+                    /*'sender_public_key': $('#public_key').val(),*/
                     'value': $('#send_amount').val(),
                 };
 
@@ -105,8 +104,10 @@
         <button id="reload_wallet">Reload Wallet</button>
         -->
 
+        <!--
         <p>Public Key</p>
         <textarea id="public_key" rows="2" cols="100" spellcheck="false"></textarea>
+        -->
         <p>Private Key QRcode</p>
         <p>Private Key</p>
         <textarea id="private_key" rows="1" cols="100" spellcheck="false"></textarea>

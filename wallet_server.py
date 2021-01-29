@@ -5,8 +5,11 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 import requests
+from ecdsa import NIST256p
+from ecdsa import SigningKey
 
 import wallet
+import utils
 
 app = Flask(__name__, template_folder='./templates')
 
@@ -22,7 +25,7 @@ def create_wallet():
     response = {
         'private_key': my_wallet.private_key,
         # 'private_key_qrcode': my_wallet.private_key_qrcode,
-        'public_key': my_wallet.public_key,
+        # 'public_key': my_wallet.public_key,
         'blockchain_address': my_wallet.blockchain_address,
     }
     return jsonify(response), 200
@@ -33,17 +36,20 @@ def create_transaction():
     request_json = request.json
     required = (
         'sender_private_key',
-        'sender_blockchain_address',
+        # 'sender_blockchain_address',
         'recipient_blockchain_address',
-        'sender_public_key',
+        # 'sender_public_key',
         'value')
     if not all(k in request_json for k in required):
         return 'missing values', 400
 
     sender_private_key = request_json['sender_private_key']
-    sender_blockchain_address = request_json['sender_blockchain_address']
+    private_key_bytes = SigningKey.from_string(
+        bytes().fromhex(sender_private_key), curve=NIST256p)
+    sender_public_key_bytes = private_key_bytes.get_verifying_key()
+    sender_public_key = sender_public_key_bytes.to_string().hex()
+    sender_blockchain_address = utils.generate_blockchain_address(sender_public_key_bytes.to_string())
     recipient_blockchain_address = request_json['recipient_blockchain_address']
-    sender_public_key = request_json['sender_public_key']
     value = float(request_json['value'])
 
     transaction = wallet.Transaction(

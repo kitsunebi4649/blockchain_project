@@ -3,6 +3,9 @@ import logging
 import re
 import socket
 import qrcode
+import hashlib
+import codecs
+import base58
 
 logger = logging.getLogger(__name__)
 
@@ -77,11 +80,38 @@ def get_host():
     return '127.0.0.1'
 
 
-def generate_qrcode(private_key, public_key, blockchain_address, port):
+def generate_qrcode(private_key, blockchain_address, port):
     if port == 5000:  # 応急処置
         result = qrcode.make('192.168.0.3:8080/?' + 'private_key='  # 固定値注意 (IPと8080)
-                         + str(private_key) + '&' + 'public_key='
-                         + str(public_key) + '&' + 'blockchain_address='
-                         + str(blockchain_address))
+                         + str(private_key) + '&' + 'blockchain_address=' + str(blockchain_address))
         name = str(port) + "'s_address.png"
         result.save(name)
+
+
+def generate_blockchain_address(public_key_bytes_string):
+    public_key_bytes = public_key_bytes_string
+    sha256_bpk = hashlib.sha256(public_key_bytes)
+    sha256_bpk_digest = sha256_bpk.digest()
+
+    ripemed160_bpk = hashlib.new('ripemd160')
+    ripemed160_bpk.update(sha256_bpk_digest)
+    ripemed160_bpk_digest = ripemed160_bpk.digest()
+    ripemed160_bpk_hex = codecs.encode(ripemed160_bpk_digest, 'hex')
+
+    network_byte = b'00'
+    network_bitcoin_public_key = network_byte + ripemed160_bpk_hex
+    network_bitcoin_public_key_bytes = codecs.decode(
+        network_bitcoin_public_key, 'hex')
+
+    sha256_bpk = hashlib.sha256(network_bitcoin_public_key_bytes)
+    sha256_bpk_digest = sha256_bpk.digest()
+    sha256_2_nbpk = hashlib.sha256(sha256_bpk_digest)
+    sha256_2_nbpk_digest = sha256_2_nbpk.digest()
+    sha256_hex = codecs.encode(sha256_2_nbpk_digest, 'hex')
+
+    checksum = sha256_hex[:8]
+
+    address_hex = (network_bitcoin_public_key + checksum).decode('utf-8')
+
+    blockchain_address = base58.b58encode(address_hex).decode('utf-8')
+    return blockchain_address
