@@ -9,7 +9,6 @@ from ecdsa import NIST256p
 from ecdsa import SigningKey
 
 import wallet
-import utils
 
 app = Flask(__name__, template_folder='./templates')
 
@@ -48,7 +47,7 @@ def create_transaction():
         bytes().fromhex(sender_private_key), curve=NIST256p)
     sender_public_key_bytes = private_key_bytes.get_verifying_key()
     sender_public_key = sender_public_key_bytes.to_string().hex()
-    sender_blockchain_address = utils.generate_blockchain_address(sender_public_key_bytes.to_string())
+    sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_bytes.to_string())
     recipient_blockchain_address = request_json['recipient_blockchain_address']
     value = float(request_json['value'])
 
