@@ -79,7 +79,7 @@ def get_host():
 
 def generate_qrcode(private_key, blockchain_address, port):
     if port == 5000:  # 応急処置
-        result = qrcode.make('192.168.0.3:8080/?' + 'private_key='  # 固定値注意 (IPと8080)
+        result = qrcode.make('192.168.0.4:8080/?' + 'private_key='  # 固定値注意 (IPと8080)
                          + str(private_key) + '&' + 'blockchain_address=' + str(blockchain_address))
         name = str(port) + "'s_address.png"
         result.save(name)
