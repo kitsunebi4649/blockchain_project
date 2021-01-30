@@ -92,6 +92,19 @@ def calculate_amount():
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
+@app.route('/wallet/amount/create_new_blockchain_address', methods=['GET'])
+def create_new_blockchain_address():
+    required = ['private_key']
+    if not all(k in request.args for k in required):
+        return 'Missing values', 400
+    my_private_key = request.args.get('private_key')
+    my_private_key_bytes = SigningKey.from_string(
+        bytes().fromhex(my_private_key), curve=NIST256p)
+    my_public_key_bytes = my_private_key_bytes.get_verifying_key()
+    new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key_bytes.to_string())
+    return jsonify({'message': 'success', 'new_blockchain_address': new_blockchain_address}), 200
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()

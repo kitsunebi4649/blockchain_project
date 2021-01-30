@@ -85,11 +85,35 @@
                  })
              }
 
+             function create_new_blockchain_address_and_qrcode() {
+                 let data = {'private_key': $('#private_key').val()}
+                 $.ajax({
+                     url: '/wallet/amount/create_new_blockchain_address',
+                     type: 'GET',
+                     data: data,
+                     success: function (response) {
+                         $('#blockchain_address').val(response['new_blockchain_address']);
+                         document.getElementById('private_key_qrcode').src
+                         = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + ($('#private_key').val());
+                         document.getElementById('blockchain_address_qrcode').src
+                         = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + (response['new_blockchain_address']);
+                         console.log(new_blockchain_address);
+                     },
+                     error: function (error) {
+                         console.error(error);
+                     }
+                 })
+             }
+
              /*
              $('#reload_wallet').click(function () {
                     reload_amount();
              });
              */
+
+             $('#reload_blockchain_address_and_qrcode').click(function () {
+                    create_new_blockchain_address_and_qrcode();
+             });
 
              setInterval(reload_amount, 3000);
 
@@ -103,6 +127,8 @@
         <!--
         <button id="reload_wallet">Reload Wallet</button>
         -->
+
+        <button id="reload_blockchain_address_and_qrcode">Reload BlockchainAddress & QRcode</button>
 
         <!--
         <p>Public Key</p>
