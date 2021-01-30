@@ -97,6 +97,7 @@
                          = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + ($('#private_key').val());
                          document.getElementById('blockchain_address_qrcode').src
                          = "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=" + (response['new_blockchain_address']);
+                         alert('Reloaded!');
                          console.log(new_blockchain_address);
                      },
                      error: function (error) {
