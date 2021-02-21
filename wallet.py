@@ -1,8 +1,9 @@
 import base58
-import codecs
+# import codecs
 import hashlib
 
-from ecdsa import NIST256p
+# from ecdsa import NIST256p
+from ecdsa import SECP256k1
 from ecdsa import SigningKey
 # import qrcode
 
@@ -12,9 +13,9 @@ import utils
 class Wallet(object):
 
     def __init__(self):
-        self._private_key = SigningKey.generate(curve=NIST256p)
-        self._public_key = self._private_key.get_verifying_key()
-        self._blockchain_address = self.generate_blockchain_address(self._public_key.to_string())
+        self._private_key = SigningKey.generate(curve=SECP256k1)
+        self._04public_key_string = bytes.fromhex("04") + self._private_key.get_verifying_key().to_string()
+        self._blockchain_address = self.generate_blockchain_address(self._04public_key_string)
         # self.private_key_qrcode = qrcode.make(self.private_key)
         # self.private_key_qrcode.save('private_key_qrcode.png')
 
@@ -24,7 +25,7 @@ class Wallet(object):
 
     @property
     def public_key(self):
-        return self._public_key.to_string().hex()
+        return self._04public_key_string.hex()
 
     @property
     def blockchain_address(self):
@@ -39,24 +40,18 @@ class Wallet(object):
         ripemed160_bpk = hashlib.new('ripemd160')
         ripemed160_bpk.update(sha256_bpk_digest)
         ripemed160_bpk_digest = ripemed160_bpk.digest()
-        ripemed160_bpk_hex = codecs.encode(ripemed160_bpk_digest, 'hex')
 
-        network_byte = b'00'
-        network_bitcoin_public_key = network_byte + ripemed160_bpk_hex
-        network_bitcoin_public_key_bytes = codecs.decode(
-            network_bitcoin_public_key, 'hex')
+        network_byte = bytes.fromhex('00')
+        network_bitcoin_public_key_bytes = network_byte + ripemed160_bpk_digest
 
         sha256_bpk = hashlib.sha256(network_bitcoin_public_key_bytes)
         sha256_bpk_digest = sha256_bpk.digest()
         sha256_2_nbpk = hashlib.sha256(sha256_bpk_digest)
         sha256_2_nbpk_digest = sha256_2_nbpk.digest()
-        sha256_hex = codecs.encode(sha256_2_nbpk_digest, 'hex')
 
-        checksum = sha256_hex[:8]
+        checksum = sha256_2_nbpk_digest[:4]
 
-        address_hex = (network_bitcoin_public_key + checksum).decode('utf-8')
-
-        blockchain_address = base58.b58encode(address_hex).decode('utf-8')
+        blockchain_address = base58.b58encode(network_bitcoin_public_key_bytes + checksum).decode('utf-8')
         return blockchain_address
 
 
@@ -71,7 +66,7 @@ class Transaction(object):
         self.recipient_blockchain_address = recipient_blockchain_address
         self.value = value
 
-    def generate_signature(self):
+    def generate_signature(self):  # TODO
         sha256 = hashlib.sha256()
         transaction = utils.sorted_dict_by_key({
             'sender_blockchain_address': self.sender_blockchain_address,
@@ -81,7 +76,7 @@ class Transaction(object):
         sha256.update(str(transaction).encode('utf-8'))
         message = sha256.digest()
         private_key = SigningKey.from_string(
-            bytes().fromhex(self.sender_private_key), curve=NIST256p)
+            bytes().fromhex(self.sender_private_key), curve=SECP256k1)
         private_key_sign = private_key.sign(message)
         signature = private_key_sign.hex()
         return signature

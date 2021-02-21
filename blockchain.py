@@ -6,7 +6,8 @@ import sys
 import time
 import threading
 
-from ecdsa import NIST256p
+# from ecdsa import NIST256p
+from ecdsa import SECP256k1
 from ecdsa import VerifyingKey
 import requests
 
@@ -130,13 +131,13 @@ class BlockChain(object):
         return is_transacted
 
     def verify_transaction_signature(
-            self, sender_public_key, signature, transaction):
+            self, sender_public_key, signature, transaction):   # txの検証
         sha256 = hashlib.sha256()
         sha256.update(str(transaction).encode('utf-8'))
         message = sha256.digest()
         signature_bytes = bytes().fromhex(signature)
         verifying_key = VerifyingKey.from_string(
-            bytes().fromhex(sender_public_key), curve=NIST256p)
+            bytes().fromhex(sender_public_key[2:]), curve=SECP256k1)  # sender_public_keyの先頭'04'を消す
         verified_key = verifying_key.verify(signature_bytes, message)
         return verified_key
 

@@ -5,7 +5,8 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 import requests
-from ecdsa import NIST256p
+# from ecdsa import NIST256p
+from ecdsa import SECP256k1
 from ecdsa import SigningKey
 
 import wallet
@@ -31,7 +32,7 @@ def create_wallet():
 
 
 @app.route('/transaction', methods=['POST'])
-def create_transaction():
+def create_transaction():  #TODO
     request_json = request.json
     required = (
         'sender_private_key',
@@ -44,10 +45,10 @@ def create_transaction():
 
     sender_private_key = request_json['sender_private_key']
     private_key_bytes = SigningKey.from_string(
-        bytes().fromhex(sender_private_key), curve=NIST256p)
-    sender_public_key_bytes = private_key_bytes.get_verifying_key()
-    sender_public_key = sender_public_key_bytes.to_string().hex()
-    sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_bytes.to_string())
+        bytes().fromhex(sender_private_key), curve=SECP256k1)
+    sender_public_key_string_bytes = bytes.fromhex("04") + private_key_bytes.get_verifying_key().to_string()
+    sender_public_key = sender_public_key_string_bytes.hex()
+    sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_string_bytes)
     recipient_blockchain_address = request_json['recipient_blockchain_address']
     value = float(request_json['value'])
 
@@ -92,15 +93,15 @@ def calculate_amount():
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
-@app.route('/wallet/amount/create_new_blockchain_address', methods=['GET'])
+@app.route('/wallet/amount/create_new_blockchain_address', methods=['GET'])  #TODO
 def create_new_blockchain_address():
     required = ['private_key']
     if not all(k in request.args for k in required):
         return 'Missing values', 400
     my_private_key = request.args.get('private_key')
-    my_private_key_bytes = SigningKey.from_string(bytes().fromhex(my_private_key), curve=NIST256p)
-    my_public_key_bytes = my_private_key_bytes.get_verifying_key()
-    new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key_bytes.to_string())
+    my_private_key_bytes = SigningKey.from_string(bytes().fromhex(my_private_key), curve=SECP256k1)
+    my_public_key_bytes = bytes.fromhex("04") + my_private_key_bytes.get_verifying_key().to_string()
+    new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key_bytes)
     return jsonify({'message': 'success', 'new_blockchain_address': new_blockchain_address}), 200
 
 
