@@ -20,6 +20,11 @@ def index():
     return render_template('./index.html')
 
 
+@app.route('/explorer')
+# def index():
+#     return render_template('./explorer.html')
+
+
 @app.route('/wallet', methods=['POST'])
 def create_wallet():
     my_wallet = wallet.Wallet()
