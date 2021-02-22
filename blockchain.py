@@ -83,11 +83,13 @@ class BlockChain(object):
 
     def add_transaction(self, sender_blockchain_address,
                         recipient_blockchain_address, value,
-                        sender_public_key=None, signature=None):
+                        sender_public_key, transaction_message, signature):
+
         transaction = utils.sorted_dict_by_key({
             'sender_blockchain_address': sender_blockchain_address,
             'recipient_blockchain_address': recipient_blockchain_address,
-            'value': float(value)
+            'value': float(value),
+            'transaction_message': transaction_message
         })
 
         if sender_blockchain_address == MINING_SENDER:
@@ -109,11 +111,11 @@ class BlockChain(object):
 
     def create_transaction(self, sender_blockchain_address,
                            recipient_blockchain_address, value,
-                           sender_public_key, signature):
+                           sender_public_key, transaction_message, signature):
 
         is_transacted = self.add_transaction(
             sender_blockchain_address, recipient_blockchain_address,
-            value, sender_public_key, signature)
+            value, sender_public_key, transaction_message, signature)
 
         if is_transacted:
             for node in self.neighbours:
@@ -125,9 +127,10 @@ class BlockChain(object):
                             recipient_blockchain_address,
                         'value': value,
                         'sender_public_key': sender_public_key,
-                        'signature': signature,
+                        'transaction_message': transaction_message,
+                        'signature': signature
                     }
-                )
+                )  # 他ノードにtxの追加をputで要求
         return is_transacted
 
     def verify_transaction_signature(
@@ -166,7 +169,11 @@ class BlockChain(object):
         self.add_transaction(
             sender_blockchain_address=MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
-            value=MINING_REWARD)
+            value=MINING_REWARD,
+            transaction_message='',
+            signature=None,
+            sender_public_key=None
+        )
         nonce = self.proof_of_work()
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)

@@ -62,19 +62,21 @@ class Transaction(object):
 
     def __init__(self, sender_private_key, sender_public_key,
                  sender_blockchain_address, recipient_blockchain_address,
-                 value):
+                 value, transaction_message):
         self.sender_private_key = sender_private_key
         self.sender_public_key = sender_public_key
         self.sender_blockchain_address = sender_blockchain_address
         self.recipient_blockchain_address = recipient_blockchain_address
         self.value = value
+        self.transaction_message = transaction_message
 
     def generate_signature(self):  # TODO
         sha256 = hashlib.sha256()
         transaction = utils.sorted_dict_by_key({
             'sender_blockchain_address': self.sender_blockchain_address,
             'recipient_blockchain_address': self.recipient_blockchain_address,
-            'value': float(self.value)
+            'value': float(self.value),
+            'transaction_message': self.transaction_message
         })
         sha256.update(str(transaction).encode('utf-8'))
         message = sha256.digest()

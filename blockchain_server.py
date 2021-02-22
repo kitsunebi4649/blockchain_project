@@ -46,14 +46,15 @@ def transaction():
         }
         return jsonify(response), 200
 
-    if request.method == 'POST':
+    if request.method == 'POST':  # wallet_serverから要求されたとき
         request_json = request.json
         required = (
             'sender_blockchain_address',
             'recipient_blockchain_address',
             'value',
             'sender_public_key',
-            'signature')
+            'transaction_message',
+            'signature')  # 必須事項のみ 2
         if not all(k in request_json for k in required):
             return jsonify({'message': 'missing values'}), 400
 
@@ -62,20 +63,22 @@ def transaction():
             request_json['recipient_blockchain_address'],
             request_json['value'],
             request_json['sender_public_key'],
-            request_json['signature'],
+            request_json['transaction_message'],
+            request_json['signature']
         )
         if not is_created:
             return jsonify({'message': 'fail'}), 400
         return jsonify({'message': 'success'}), 201
 
-    if request.method == 'PUT':
+    if request.method == 'PUT':  # blockchain_serverから要求されたとき
         request_json = request.json
         required = (
             'sender_blockchain_address',
             'recipient_blockchain_address',
             'value',
             'sender_public_key',
-            'signature')
+            'transaction_message',
+            'signature')  # 必須事項のみを示す 3
         if not all(k in request_json for k in required):
             return jsonify({'message': 'missing values'}), 400
 
@@ -84,7 +87,8 @@ def transaction():
             request_json['recipient_blockchain_address'],
             request_json['value'],
             request_json['sender_public_key'],
-            request_json['signature'],
+            request_json['transaction_message'],
+            request_json['signature']
         )
         if not is_updated:
             return jsonify({'message': 'fail'}), 400

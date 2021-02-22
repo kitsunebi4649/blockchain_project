@@ -50,6 +50,7 @@
                     'recipient_blockchain_address': $('#recipient_blockchain_address').val(),
                     /*'sender_public_key': $('#public_key').val(),*/
                     'value': $('#send_amount').val(),
+                    'transaction_message': $('#transaction_message').val(),
                 };
 
                 $.ajax({
@@ -150,6 +151,8 @@
             Address: <input id="recipient_blockchain_address" size="100"
                             type="text" spellcheck="false"><br>
             Amount: <input id="send_amount" type="text"><br>
+            Message: <input id="transaction_message" size="100"
+                            type="text" spellcheck="false"><br>
             <button id="send_money_button">Send</button>
         </div>
     </div>

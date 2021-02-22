@@ -40,7 +40,9 @@ def create_transaction():  #TODO
         # 'sender_blockchain_address',
         'recipient_blockchain_address',
         # 'sender_public_key',
-        'value')
+        'value',
+        'transaction_message'
+    )   # 必須事項を示す 1
     if not all(k in request_json for k in required):
         return 'missing values', 400
 
@@ -52,6 +54,7 @@ def create_transaction():  #TODO
     sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_string_bytes)
     recipient_blockchain_address = request_json['recipient_blockchain_address']
     value = float(request_json['value'])
+    transaction_message = request_json['transaction_message']
 
     recipient_blockchain_address_bytes = recipient_blockchain_address.encode()
     network_bitcoin_public_key_bytes = base58.b58decode(recipient_blockchain_address_bytes)[:21]
@@ -64,13 +67,16 @@ def create_transaction():  #TODO
         sender_public_key,
         sender_blockchain_address,
         recipient_blockchain_address,
-        value)
+        value,
+        transaction_message
+    )
 
     json_data = {
         'sender_blockchain_address': sender_blockchain_address,
         'recipient_blockchain_address': recipient_blockchain_address,
         'sender_public_key': sender_public_key,
         'value': value,
+        'transaction_message': transaction_message,
         'signature': transaction.generate_signature(),
     }
 
