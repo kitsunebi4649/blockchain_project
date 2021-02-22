@@ -8,6 +8,7 @@ import requests
 # from ecdsa import NIST256p
 from ecdsa import SECP256k1
 from ecdsa import SigningKey
+import base58
 
 import wallet
 
@@ -51,6 +52,12 @@ def create_transaction():  #TODO
     sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_string_bytes)
     recipient_blockchain_address = request_json['recipient_blockchain_address']
     value = float(request_json['value'])
+
+    recipient_blockchain_address_bytes = recipient_blockchain_address.encode()
+    network_bitcoin_public_key_bytes = base58.b58decode(recipient_blockchain_address_bytes)[:21]
+    checksum = base58.b58decode(recipient_blockchain_address_bytes)[21:]
+    if checksum != wallet.Wallet.create_checksum(network_bitcoin_public_key_bytes):
+        return 'missing recipient_blockchain_address', 400
 
     transaction = wallet.Transaction(
         sender_private_key,

@@ -15,7 +15,7 @@ def get_blockchain():
     if not cached_blockchain:
         miners_wallet = wallet.Wallet()
         utils.generate_qrcode(private_key=miners_wallet.private_key,
-                              blockchain_address=miners_wallet.blockchain_address, port=port)
+                              blockchain_address=miners_wallet.blockchain_address, port=app.config['port'])
         cache['blockchain'] = blockchain.BlockChain(
             blockchain_address=miners_wallet.blockchain_address,
             port=app.config['port'])
@@ -95,19 +95,19 @@ def transaction():
         return jsonify({'message': 'success'}), 200
 
 
-@app.route('/mine', methods=['GET'])
-def mine():
-    block_chain = get_blockchain()
-    is_mined = block_chain.mining()
-    if is_mined:
-        return jsonify({'message': 'success'}), 200
-    return jsonify({'message': 'fail'}), 400
+# @app.route('/mine', methods=['GET'])
+# def mine():
+#     block_chain = get_blockchain()
+#     is_mined = block_chain.mining()
+#     if is_mined:
+#         return jsonify({'message': 'success'}), 200
+#     return jsonify({'message': 'fail'}), 400
 
 
-@app.route('/mine/start', methods=['GET'])
-def start_mine():
-    get_blockchain().start_mining()
-    return jsonify({'message': 'success'}), 200
+# @app.route('/mine/start', methods=['GET'])
+# def start_mine():
+#     get_blockchain().start_mining()
+#     return jsonify({'message': 'success'}), 200
 
 
 @app.route('/consensus', methods=['PUT'])

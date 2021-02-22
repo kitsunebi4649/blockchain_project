@@ -32,7 +32,7 @@ class Wallet(object):
         return self._blockchain_address
 
     @classmethod
-    def generate_blockchain_address(self, public_key_bytes_string):
+    def generate_blockchain_address(cls, public_key_bytes_string):
         public_key_bytes = public_key_bytes_string
         sha256_bpk = hashlib.sha256(public_key_bytes)
         sha256_bpk_digest = sha256_bpk.digest()
@@ -43,16 +43,19 @@ class Wallet(object):
 
         network_byte = bytes.fromhex('00')
         network_bitcoin_public_key_bytes = network_byte + ripemed160_bpk_digest
+        checksum = cls.create_checksum(network_bitcoin_public_key_bytes)
 
+        blockchain_address = base58.b58encode(network_bitcoin_public_key_bytes + checksum).decode('utf-8')
+        return blockchain_address
+
+    @classmethod
+    def create_checksum(cls, network_bitcoin_public_key_bytes):
         sha256_bpk = hashlib.sha256(network_bitcoin_public_key_bytes)
         sha256_bpk_digest = sha256_bpk.digest()
         sha256_2_nbpk = hashlib.sha256(sha256_bpk_digest)
         sha256_2_nbpk_digest = sha256_2_nbpk.digest()
-
         checksum = sha256_2_nbpk_digest[:4]
-
-        blockchain_address = base58.b58encode(network_bitcoin_public_key_bytes + checksum).decode('utf-8')
-        return blockchain_address
+        return checksum
 
 
 class Transaction(object):
