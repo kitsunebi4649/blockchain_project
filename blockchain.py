@@ -198,11 +198,9 @@ class BlockChain(object):
         for block in self.chain:
             for transaction in block['transactions']:
                 value = float(transaction['value'])
-                if blockchain_address == \
-                        transaction['recipient_blockchain_address']:
+                if blockchain_address == transaction['recipient_blockchain_address']:
                     total_amount += value
-                if blockchain_address == \
-                        transaction['sender_blockchain_address']:
+                if blockchain_address == transaction['sender_blockchain_address']:
                     total_amount -= value
         return total_amount
 

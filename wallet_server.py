@@ -20,11 +20,6 @@ def index():
     return render_template('./index.html')
 
 
-@app.route('/explorer')
-# def index():
-#     return render_template('./explorer.html')
-
-
 @app.route('/wallet', methods=['POST'])
 def create_wallet():
     my_wallet = wallet.Wallet()
@@ -121,6 +116,45 @@ def create_new_blockchain_address():
     my_public_key_bytes = bytes.fromhex("04") + my_private_key_bytes.get_verifying_key().to_string()
     new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key_bytes)
     return jsonify({'message': 'success', 'new_blockchain_address': new_blockchain_address}), 200
+
+
+###############database_server#################
+
+# @app.route('/explorer', methods=['GET'])
+# def explorer():
+#     return render_template('./explorer.html')
+
+
+@app.route('/explorer/search/blockchain_address', methods=['GET'])
+def explorer_blockchain_address_amount():
+    blockchain_address = request.args['search_value']
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)  # TODO 本来はすでにデータ保持済
+    if response.status_code == 200:
+        chain = response.json()['chain']
+        total_amount = 0.0
+        transaction_history = []
+        for block_number, block in enumerate(chain):
+            for transaction in block['transactions']:
+                value = float(transaction['value'])
+                if blockchain_address == transaction['recipient_blockchain_address']:
+                    transaction_history.append({'block_number': block_number, 'transaction': transaction})
+                    total_amount += value
+                if blockchain_address == transaction['sender_blockchain_address']:
+                    transaction_history.append({'block_number': block_number, 'transaction': transaction})
+                    total_amount -= value
+        return jsonify({'message': 'success', 'total_amount': total_amount,
+                        'transaction_history': transaction_history, 'blockchain_address': blockchain_address}), 200  # TODO 本当はhistoryリストを逆順にしたい
+    return jsonify({'message': 'fail', 'error': response.content}), 400
+
+
+@app.route('/explorer/search/block', methods=['GET'])
+def explorer_block():
+    block_number = int(request.args['search_value'])
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)
+    if response.status_code == 200:
+        chain = response.json()['chain']
+        return jsonify({'message': 'success', 'block_number': block_number, 'block': chain[block_number]}), 200
+    return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
 if __name__ == '__main__':

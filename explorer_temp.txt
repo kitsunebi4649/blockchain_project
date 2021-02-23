@@ -1,0 +1,35 @@
+@app.route('/explorer/search/XXXXXXXX', methods=['GET'])
+def explorer_XXXXXX():
+    XXXXXXXXX = request.args['search_value']
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)
+    if response.status_code == 200:
+        chain = response.json()['chain']
+        return jsonify({'message': 'success', 'XXXXXXX': 'XXXXXXX'}), 200
+    return jsonify({'message': 'fail', 'error': response.content}), 400
+
+****************************
+
+XXXXXは5箇所
+
+
+def explorer_block():
+    # block_chain = get_blockchain()
+    # response = {
+    #     'chain': [OrderedDict([('nonce', 0), ('previous_hash',
+    #                                           '44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a'),
+    #                            ('timestamp', 1614038016.841822), ('transactions', [])])]
+    # }
+    # return jsonify(response), 200
+
+    # required = ['search_value']  # ただの得るべき対象物のリスト  #TODO urlパラメーターから取得
+    # if not all(k in request.args for k in required):
+    #     return 'Missing values', 400
+    block_number = int(request.args['s'])
+    # block_number = int(request.args.get('s'))
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)
+    if response.status_code == 200:
+        chain = response.json()['chain']
+        result = chain[block_number]
+        return jsonify({'message': 'success', 'amount': result}), 200
+    return jsonify({'message': 'fail', 'error': response.content}), 400
+
