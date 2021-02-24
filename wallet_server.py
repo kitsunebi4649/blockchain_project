@@ -120,17 +120,18 @@ def create_new_blockchain_address():
 
 ###############database_server#################
 
-# @app.route('/explorer', methods=['GET'])
-# def explorer():
-#     return render_template('./explorer.html')
+@app.route('/explorer', methods=['GET'])
+def explorer():
+    return render_template('./explorer/explorer_top.html')
 
 
-@app.route('/explorer/search/blockchain_address', methods=['GET'])
+@app.route('/explorer/blockchain_address', methods=['GET'])
 def explorer_blockchain_address_amount():
     blockchain_address = request.args['search_value']
     response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)  # TODO 本来はすでにデータ保持済
     if response.status_code == 200:
         chain = response.json()['chain']
+        chain.reverse()
         total_amount = 0.0
         transaction_history = []
         for block_number, block in enumerate(chain):
@@ -142,12 +143,12 @@ def explorer_blockchain_address_amount():
                 if blockchain_address == transaction['sender_blockchain_address']:
                     transaction_history.append({'block_number': block_number, 'transaction': transaction})
                     total_amount -= value
-        return jsonify({'message': 'success', 'total_amount': total_amount,
-                        'transaction_history': transaction_history, 'blockchain_address': blockchain_address}), 200  # TODO 本当はhistoryリストを逆順にしたい
+        return render_template('./explorer/result/blockchain_address.html', blockchain_address=blockchain_address,
+                               total_amount=total_amount, transaction_history=transaction_history)
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
-@app.route('/explorer/search/block', methods=['GET'])
+@app.route('/explorer/block', methods=['GET'])
 def explorer_block():
     block_number = int(request.args['search_value'])
     response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)

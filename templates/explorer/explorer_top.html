@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Explorer</title>
+    <script>
+        function changeAction(){
+        var formObject = document.getElementById('formURL');
+        formObject.action = "explorer/" + document.getElementById('search_type').value;
+        }
+    </script>
+</head>
+<body>
+    <form action="" id="formURL">
+        <select id="search_type" onchange="changeAction()">
+            <option>---</option>
+            <option value="blockchain_address" >blockchain address</option>
+            <option value="block">block</option>
+        </select><br>
+        <label>
+            検索:<input type="search" name="search_value" spellcheck="false">
+        </label>
+        <input type="submit">
+    </form>
+</body>
+</html>
