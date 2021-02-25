@@ -37,6 +37,7 @@ class BlockChain(object):
         self.port = port
         self.mining_semaphore = threading.Semaphore(1)
         self.sync_neighbours_semaphore = threading.Semaphore(1)
+        self.root_hash = None
 
     def run(self):
         self.sync_neighbours()
@@ -93,7 +94,7 @@ class BlockChain(object):
         })
 
         if sender_blockchain_address == MINING_SENDER:
-            self.transaction_pool.append(transaction)
+            self.buildin_transaction(transaction)
             return True
 
         if self.verify_transaction_signature(
@@ -105,7 +106,7 @@ class BlockChain(object):
                     {'action': 'add_transaction', 'error': 'no_value'})
                 return False
 
-            self.transaction_pool.append(transaction)
+            self.buildin_transaction(transaction)
             return True
         return False
 
@@ -241,3 +242,24 @@ class BlockChain(object):
 
         logger.info({'action': 'resolve_conflicts', 'status': 'not_replaced'})
         return False
+
+    def update_root_hash(self):
+        transactions = self.transaction_pool
+        if len(transactions) % 2 == 1:
+            transactions.append(transactions[-1])
+        leaves = [self.hash(d) for d in transactions]  # 必ず leaves >= 2 になる
+        while len(leaves) > 1:
+            leaves = self.merge_leaves(leaves)  # 全体の要素を1/2に圧縮
+        self.root_hash = leaves
+
+
+    def merge_leaves(self, leaves):
+        if len(leaves) % 2 == 1:
+            leaves.append(leaves[-1])
+        return [(hashlib.sha256(leaves[i].encode() + leaves[i + 1].encode())).hexdigest()
+                for i in range(0, len(leaves), 2)]
+
+    def buildin_transaction(self, transaction):
+        self.transaction_pool.append(transaction)
+        self.update_root_hash()
+

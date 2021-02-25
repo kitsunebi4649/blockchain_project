@@ -131,7 +131,6 @@ def explorer_blockchain_address_amount():
     response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)  # TODO 本来はすでにデータ保持済
     if response.status_code == 200:
         chain = response.json()['chain']
-        chain.reverse()
         total_amount = 0.0
         transaction_history = []
         for block_number, block in enumerate(chain):
@@ -144,7 +143,7 @@ def explorer_blockchain_address_amount():
                     transaction_history.append({'block_number': block_number, 'transaction': transaction})
                     total_amount -= value
         return render_template('./explorer/result/blockchain_address.html', blockchain_address=blockchain_address,
-                               total_amount=total_amount, transaction_history=transaction_history)
+                               total_amount=total_amount, transaction_history=list(reversed(transaction_history)))
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 

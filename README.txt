@@ -97,3 +97,11 @@ httpsではなくhttp
     # print(wallet.private_key)  # ここではprivate_key関数を指す。関数の()不要。
     # print(wallet.public_key)  # ここではpublic_key関数を指す。関数の()不要。
     # print(wallet.blockchain_address)  # ここではblockchain_address関数を指す。関数の()不要。
+
+
+****************************************
+delete transaction pool　の後に自身のcoinbaseTXを追加。受動的にdelete transaction poolが実行された時のみ実行
+
+self.transaction_pool.append(transaction)を禁止
+buildin_transaction(transaction)を利用
+
