@@ -32,12 +32,12 @@ class BlockChain(object):
         self.transaction_pool = []
         self.chain = []
         self.neighbours = []
+        self.root_hash = 'sjijijijijijijijji'
         self.create_block(0, self.hash({}))
         self.blockchain_address = blockchain_address
         self.port = port
         self.mining_semaphore = threading.Semaphore(1)
         self.sync_neighbours_semaphore = threading.Semaphore(1)
-        self.root_hash = None
 
     def run(self):
         self.sync_neighbours()
@@ -67,6 +67,7 @@ class BlockChain(object):
         block = utils.sorted_dict_by_key({
             'timestamp': time.time(),
             'transactions': self.transaction_pool,
+            'root_hash': self.root_hash,
             'nonce': nonce,
             'previous_hash': previous_hash
         })
@@ -145,10 +146,10 @@ class BlockChain(object):
         verified_key = verifying_key.verify(signature_bytes, message)
         return verified_key
 
-    def valid_proof(self, transactions, previous_hash, nonce,
+    def valid_proof(self, root_hash, previous_hash, nonce,
                     difficulty=MINING_DIFFICULTY):
         guess_block = utils.sorted_dict_by_key({
-            'transactions': transactions,
+            'root_hash': root_hash,
             'nonce': nonce,
             'previous_hash': previous_hash
         })
@@ -156,10 +157,10 @@ class BlockChain(object):
         return guess_hash[:difficulty] == '0' * difficulty
 
     def proof_of_work(self):
-        transactions = self.transaction_pool.copy()
+        root_hash = self.root_hash
         previous_hash = self.hash(self.chain[-1])
         nonce = 0
-        while self.valid_proof(transactions, previous_hash, nonce) is False:
+        while self.valid_proof(root_hash, previous_hash, nonce) is False:
             nonce += 1
         return nonce
 
@@ -214,7 +215,7 @@ class BlockChain(object):
                 return False
 
             if not self.valid_proof(
-                    block['transactions'], block['previous_hash'],
+                    block['root_hash'], block['previous_hash'],
                     block['nonce'], MINING_DIFFICULTY):
                 return False
 
@@ -244,13 +245,14 @@ class BlockChain(object):
         return False
 
     def update_root_hash(self):
-        transactions = self.transaction_pool
+        transactions = self.transaction_pool.copy()  # 参照渡し防止
         if len(transactions) % 2 == 1:
             transactions.append(transactions[-1])
+        print(self.transaction_pool)
         leaves = [self.hash(d) for d in transactions]  # 必ず leaves >= 2 になる
         while len(leaves) > 1:
             leaves = self.merge_leaves(leaves)  # 全体の要素を1/2に圧縮
-        self.root_hash = leaves
+        self.root_hash = leaves[0]
 
 
     def merge_leaves(self, leaves):
