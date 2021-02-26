@@ -66,7 +66,6 @@ class BlockChain(object):
     def create_block(self, nonce, previous_hash):
         block = utils.sorted_dict_by_key({
             'timestamp': time.time(),
-            'transactions': self.transaction_pool,
             'root_hash': self.root_hash,
             'nonce': nonce,
             'previous_hash': previous_hash
@@ -248,7 +247,6 @@ class BlockChain(object):
         transactions = self.transaction_pool.copy()  # 参照渡し防止
         if len(transactions) % 2 == 1:
             transactions.append(transactions[-1])
-        print(self.transaction_pool)
         leaves = [self.hash(d) for d in transactions]  # 必ず leaves >= 2 になる
         while len(leaves) > 1:
             leaves = self.merge_leaves(leaves)  # 全体の要素を1/2に圧縮
