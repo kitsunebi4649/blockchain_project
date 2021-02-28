@@ -31,8 +31,9 @@ class BlockChain(object):
     def __init__(self, blockchain_address=None, port=None):
         self.transaction_pool = []
         self.chain = []
+        self.transaction_aggregation = []
         self.neighbours = []
-        self.root_hash = 'sjijijijijijijijji'
+        self.root_hash = '0'
         self.create_block(0, self.hash({}))
         self.blockchain_address = blockchain_address
         self.port = port
@@ -71,6 +72,7 @@ class BlockChain(object):
             'previous_hash': previous_hash
         })
         self.chain.append(block)
+        self.transaction_aggregation.append(self.transaction_pool.copy())
         self.transaction_pool = []
 
         for node in self.neighbours:
@@ -196,8 +198,8 @@ class BlockChain(object):
 
     def calculate_total_amount(self, blockchain_address):
         total_amount = 0.0
-        for block in self.chain:
-            for transaction in block['transactions']:
+        for transaction_data in self.transaction_aggregation:
+            for transaction in transaction_data:
                 value = float(transaction['value'])
                 if blockchain_address == transaction['recipient_blockchain_address']:
                     total_amount += value
@@ -224,6 +226,7 @@ class BlockChain(object):
 
     def resolve_conflicts(self):
         longest_chain = None
+        longest_chain_port = None
         max_length = len(self.chain)
         for node in self.neighbours:
             response = requests.get(f'http://{node}/chain')
@@ -234,9 +237,17 @@ class BlockChain(object):
                 if chain_length > max_length and self.valid_chain(chain):
                     max_length = chain_length
                     longest_chain = chain
+                    longest_chain_port = node
 
         if longest_chain:
             self.chain = longest_chain
+            response = requests.get(f'http://{longest_chain_port}/transaction_aggregation')
+            if response.status_code == 200:
+                response_json = response.json()
+                transaction_aggregation = response_json['transaction_aggregation']  # TODO スライスで要求
+                self.transaction_aggregation = transaction_aggregation  # TODO スレッドで実行
+            else:
+                logger.info({'action': 'resolve_conflicts', 'status': 'replace_error'})  # TODO loggerinfoじゃない
             logger.info({'action': 'resolve_conflicts', 'status': 'replaced'})
             return True
 

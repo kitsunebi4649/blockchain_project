@@ -9,8 +9,29 @@
         formObject.action = "explorer/" + document.getElementById('search_type').value;
         }
     </script>
+    <style>
+        h1{
+            color: blue;
+            text-align: center;
+            font-size: 70pt;
+        }
+        body{
+            background-color: chartreuse;
+        }
+        form{
+            text-align: center;
+            font-size: 70pt;
+        }
+        input{
+            font-size: 30pt;
+        }
+        select{
+            font-size: 30pt;
+        }
+    </style>
 </head>
 <body>
+    <h1>BLOCKCHAINを検索</h1>
     <form action="" id="formURL">
         <select id="search_type" onchange="changeAction()">
             <option>---</option>
@@ -18,7 +39,7 @@
             <option value="block">block</option>
         </select><br>
         <label>
-            検索:<input type="search" name="search_value" spellcheck="false">
+            検索:<input type="search" name="search_value" size="45" spellcheck="false">
         </label>
         <input type="submit">
     </form>

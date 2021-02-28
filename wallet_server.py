@@ -128,13 +128,13 @@ def explorer():
 @app.route('/explorer/blockchain_address', methods=['GET'])
 def explorer_blockchain_address_amount():
     blockchain_address = request.args['search_value']
-    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)  # TODO 本来はすでにデータ保持済
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'transaction_aggregation'), timeout=3)  # TODO 本来はすでにデータ保持済
     if response.status_code == 200:
-        chain = response.json()['chain']
+        transaction_aggregation = response.json()['transaction_aggregation']
         total_amount = 0.0
         transaction_history = []
-        for block_number, block in enumerate(chain):
-            for transaction in block['transactions']:
+        for block_number, transaction_data in enumerate(transaction_aggregation):
+            for transaction in transaction_data:
                 value = float(transaction['value'])
                 if blockchain_address == transaction['recipient_blockchain_address']:
                     transaction_history.append({'block_number': block_number, 'transaction': transaction})

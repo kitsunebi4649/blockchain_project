@@ -129,6 +129,31 @@ def get_total_amount():
     }), 200
 
 
+##################spv###################
+
+
+@app.route('/hashrate', methods=['GET'])
+def get_rate():
+    block_chain = get_blockchain()
+    oneblock_time = (block_chain.chain[-1]['timestamp'] - block_chain.chain[-11]['timestamp']) / 10
+    rate = 2 ** (blockchain.MINING_DIFFICULTY * 4) / oneblock_time
+    response = {
+        'rate': rate
+    }
+    return jsonify(response), 200
+
+
+@app.route('/transaction_aggregation', methods=['GET'])
+@app.route('/transaction_aggregation/<start>', methods=['GET'])
+def get_transaction_aggregation(start=0):
+    block_chain = get_blockchain()
+    response = {
+        'transaction_aggregation': block_chain.transaction_aggregation[start:]
+    }
+    return jsonify(response), 200
+
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
 
