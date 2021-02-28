@@ -142,7 +142,7 @@ def explorer_blockchain_address_amount():
                 if blockchain_address == transaction['sender_blockchain_address']:
                     transaction_history.append({'block_number': block_number, 'transaction': transaction})
                     total_amount -= value
-        return render_template('./explorer/result/blockchain_address.html', blockchain_address=blockchain_address,
+        return render_template('./explorer/blockchain_address.html', blockchain_address=blockchain_address,
                                total_amount=total_amount, transaction_history=list(reversed(transaction_history)))
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
