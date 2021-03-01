@@ -281,4 +281,3 @@ class BlockChain(object):
         if checksum != wallet.Wallet.generate_checksum(network_bitcoin_public_key_bytes):
             return False
         return True
-

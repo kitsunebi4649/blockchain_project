@@ -153,16 +153,6 @@ def get_rate():
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
-# @app.route('/explorer/transaction_aggregation', methods=['GET'])
-# @app.route('/explorer/transaction_aggregation/<start>', methods=['GET'])
-# def get_transaction_aggregation(start=0):
-#     block_chain = get_blockchain()
-#     response = {
-#         'transaction_aggregation': block_chain.transaction_aggregation[start:]
-#     }
-#     return jsonify(response), 200
-
-
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()

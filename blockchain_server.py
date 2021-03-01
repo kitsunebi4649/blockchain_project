@@ -110,6 +110,7 @@ def get_total_amount():
         'amount': get_blockchain().calculate_total_amount(blockchain_address)
     }), 200
 
+
 @app.route('/transaction_aggregation', methods=['GET'])
 @app.route('/transaction_aggregation/<start>', methods=['GET'])
 def get_transaction_aggregation(start=0):
@@ -118,6 +119,7 @@ def get_transaction_aggregation(start=0):
         'transaction_aggregation': block_chain.transaction_aggregation[start:]
     }
     return jsonify(response), 200
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
