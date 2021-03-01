@@ -5,12 +5,14 @@ import logging
 import sys
 import time
 import threading
+import base58
 
 from ecdsa import SECP256k1
 from ecdsa import VerifyingKey
 import requests
 
 import utils
+import wallet
 
 MINING_DIFFICULTY = 3
 MINING_SENDER = 'THE BLOCKCHAIN'
@@ -65,10 +67,11 @@ class BlockChain(object):
 
     def create_block(self, nonce, previous_hash):
         block = utils.sorted_dict_by_key({
-            'timestamp': time.time(),
+            'timestamp': int(time.time()),
             'root_hash': self.root_hash,
             'nonce': nonce,
-            'previous_hash': previous_hash
+            'previous_hash': previous_hash,
+            'difficulty': MINING_DIFFICULTY
         })
         self.chain.append(block)
         self.transaction_aggregation.append(self.transaction_pool.copy())
@@ -93,6 +96,8 @@ class BlockChain(object):
             'value': float(value),
             'transaction_message': transaction_message
         })
+        if not self.verify_checksum(recipient_blockchain_address):
+            return False
 
         if sender_blockchain_address == MINING_SENDER:
             self.buildin_transaction(transaction)
@@ -165,9 +170,6 @@ class BlockChain(object):
         return nonce
 
     def mining(self):
-        # if not self.transaction_pool:
-        #     return False
-
         self.add_transaction(
             sender_blockchain_address=MINING_SENDER,
             recipient_blockchain_address=self.blockchain_address,
@@ -262,7 +264,6 @@ class BlockChain(object):
             leaves = self.merge_leaves(leaves)  # 全体の要素を1/2に圧縮
         self.root_hash = leaves[0]
 
-
     def merge_leaves(self, leaves):
         if len(leaves) % 2 == 1:
             leaves.append(leaves[-1])
@@ -272,4 +273,12 @@ class BlockChain(object):
     def buildin_transaction(self, transaction):
         self.transaction_pool.append(transaction)
         self.update_root_hash()
+
+    def verify_checksum(self, recipient_blockchain_address):
+        recipient_blockchain_address_bytes = recipient_blockchain_address.encode()
+        network_bitcoin_public_key_bytes = base58.b58decode(recipient_blockchain_address_bytes)[:21]
+        checksum = base58.b58decode(recipient_blockchain_address_bytes)[21:]
+        if checksum != wallet.Wallet.generate_checksum(network_bitcoin_public_key_bytes):
+            return False
+        return True
 

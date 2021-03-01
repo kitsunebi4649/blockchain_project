@@ -1,10 +1,8 @@
 import base58
-# import codecs
 import hashlib
 
 from ecdsa import SECP256k1
 from ecdsa import SigningKey
-# import qrcode
 
 import utils
 
@@ -12,27 +10,20 @@ import utils
 class Wallet(object):
 
     def __init__(self):
-        self._private_key = SigningKey.generate(curve=SECP256k1)
-        self._04public_key_string = bytes.fromhex("04") + self._private_key.get_verifying_key().to_string()
-        self._blockchain_address = self.generate_blockchain_address(self._04public_key_string)
-        # self.private_key_qrcode = qrcode.make(self.private_key)
-        # self.private_key_qrcode.save('private_key_qrcode.png')
-
-    @property
-    def private_key(self):
-        return self._private_key.to_string().hex()
-
-    @property
-    def public_key(self):
-        return self._04public_key_string.hex()
-
-    @property
-    def blockchain_address(self):
-        return self._blockchain_address
+        self.private_key = SigningKey.generate(curve=SECP256k1).to_string().hex()
+        self.public_key = self.generate_public_key(self.private_key)
+        self.blockchain_address = self.generate_blockchain_address(self.public_key)
 
     @classmethod
-    def generate_blockchain_address(cls, public_key_bytes_string):
-        public_key_bytes = public_key_bytes_string
+    def generate_public_key(cls, private_key):
+        private_key_bytes = SigningKey.from_string(bytes().fromhex(private_key), curve=SECP256k1)
+        public_key_bytes = bytes.fromhex('04') + private_key_bytes.get_verifying_key().to_string()
+        public_key = public_key_bytes.hex()
+        return public_key
+
+    @classmethod
+    def generate_blockchain_address(cls, public_key):
+        public_key_bytes = bytes().fromhex(public_key)
         sha256_bpk = hashlib.sha256(public_key_bytes)
         sha256_bpk_digest = sha256_bpk.digest()
 
@@ -42,13 +33,13 @@ class Wallet(object):
 
         network_byte = bytes.fromhex('00')
         network_bitcoin_public_key_bytes = network_byte + ripemed160_bpk_digest
-        checksum = cls.create_checksum(network_bitcoin_public_key_bytes)
+        checksum = cls.generate_checksum(network_bitcoin_public_key_bytes)
 
         blockchain_address = base58.b58encode(network_bitcoin_public_key_bytes + checksum).decode('utf-8')
         return blockchain_address
 
     @classmethod
-    def create_checksum(cls, network_bitcoin_public_key_bytes):
+    def generate_checksum(cls, network_bitcoin_public_key_bytes):
         sha256_bpk = hashlib.sha256(network_bitcoin_public_key_bytes)
         sha256_bpk_digest = sha256_bpk.digest()
         sha256_2_nbpk = hashlib.sha256(sha256_bpk_digest)

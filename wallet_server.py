@@ -5,9 +5,6 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 import requests
-from ecdsa import SECP256k1
-from ecdsa import SigningKey
-import base58
 
 import wallet
 
@@ -24,8 +21,6 @@ def create_wallet():
     my_wallet = wallet.Wallet()
     response = {
         'private_key': my_wallet.private_key,
-        # 'private_key_qrcode': my_wallet.private_key_qrcode,
-        # 'public_key': my_wallet.public_key,
         'blockchain_address': my_wallet.blockchain_address,
     }
     return jsonify(response), 200
@@ -36,29 +31,18 @@ def create_transaction():  #TODO
     request_json = request.json
     required = (
         'sender_private_key',
-        # 'sender_blockchain_address',
         'recipient_blockchain_address',
-        # 'sender_public_key',
         'value',
         'transaction_message'
     )   # 必須事項を示す 1
     if not all(k in request_json for k in required):
         return 'missing values', 400
     sender_private_key = request_json['sender_private_key']
-    private_key_bytes = SigningKey.from_string(
-        bytes().fromhex(sender_private_key), curve=SECP256k1)
-    sender_public_key_string_bytes = bytes.fromhex("04") + private_key_bytes.get_verifying_key().to_string()
-    sender_public_key = sender_public_key_string_bytes.hex()
-    sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key_string_bytes)
+    sender_public_key = wallet.Wallet.generate_public_key(sender_private_key)
+    sender_blockchain_address = wallet.Wallet.generate_blockchain_address(sender_public_key)
     recipient_blockchain_address = request_json['recipient_blockchain_address']
     value = float(request_json['value'])
     transaction_message = request_json['transaction_message']
-
-    recipient_blockchain_address_bytes = recipient_blockchain_address.encode()
-    network_bitcoin_public_key_bytes = base58.b58decode(recipient_blockchain_address_bytes)[:21]
-    checksum = base58.b58decode(recipient_blockchain_address_bytes)[21:]
-    if checksum != wallet.Wallet.create_checksum(network_bitcoin_public_key_bytes):
-        return 'missing recipient_blockchain_address', 400
 
     transaction = wallet.Transaction(
         sender_private_key,
@@ -110,9 +94,8 @@ def create_new_blockchain_address():
     if not all(k in request.args for k in required):
         return 'Missing values', 400
     my_private_key = request.args.get('private_key')
-    my_private_key_bytes = SigningKey.from_string(bytes().fromhex(my_private_key), curve=SECP256k1)
-    my_public_key_bytes = bytes.fromhex("04") + my_private_key_bytes.get_verifying_key().to_string()
-    new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key_bytes)
+    my_public_key = wallet.Wallet.generate_public_key(my_private_key)
+    new_blockchain_address = wallet.Wallet.generate_blockchain_address(my_public_key)
     return jsonify({'message': 'success', 'new_blockchain_address': new_blockchain_address}), 200
 
 
@@ -153,6 +136,31 @@ def explorer_block():
         chain = response.json()['chain']
         return jsonify({'message': 'success', 'block_number': block_number, 'block': chain[block_number]}), 200
     return jsonify({'message': 'fail', 'error': response.content}), 400
+
+
+@app.route('/explorer/hashrate', methods=['GET'])
+def get_rate():
+    response = requests.get(urllib.parse.urljoin(app.config['gw'], 'chain'), timeout=3)
+    if response.status_code == 200:
+        chain = response.json()['chain']
+        difficulty = response.json()['difficulty']
+        time_average = (chain[-1]['timestamp'] - chain[-11]['timestamp']) / 10
+        rate = 2 ** (difficulty * 4) / time_average
+        response = {
+            'rate': rate
+        }
+        return jsonify(response), 200
+    return jsonify({'message': 'fail', 'error': response.content}), 400
+
+
+# @app.route('/explorer/transaction_aggregation', methods=['GET'])
+# @app.route('/explorer/transaction_aggregation/<start>', methods=['GET'])
+# def get_transaction_aggregation(start=0):
+#     block_chain = get_blockchain()
+#     response = {
+#         'transaction_aggregation': block_chain.transaction_aggregation[start:]
+#     }
+#     return jsonify(response), 200
 
 
 if __name__ == '__main__':

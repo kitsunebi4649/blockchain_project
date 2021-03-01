@@ -2,7 +2,7 @@ import collections
 import logging
 import re
 import socket
-import qrcode
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,21 +14,6 @@ RE_IP = re.compile(
 def sorted_dict_by_key(unsorted_dict):
     return collections.OrderedDict(
         sorted(unsorted_dict.items(), key=lambda d: d[0]))
-
-
-def pprint(chains):
-    for i, chain in enumerate(chains):
-        print(f'{"="*25} Chain {i} {"="*25}')
-        for k, v in chain.items():
-            if k == 'transactions':
-                print(k)
-                for d in v:
-                    print(f'{"-"*40}')
-                    for kk, vv in d.items():
-                        print(f' {kk:30}{vv}')
-            else:
-                print(f'{k:15}{v}')
-    print(f'{"*"*25}')
 
 
 def is_found_host(target, port):
@@ -75,11 +60,3 @@ def get_host():
     except Exception as ex:
         logger.debug({'action': 'get_host', 'ex': ex})
     return '127.0.0.1'
-
-
-def generate_qrcode(private_key, blockchain_address, port):
-    if port == 5000:  # 応急処置
-        result = qrcode.make('192.168.0.4:8080/?' + 'private_key='  # 固定値注意 (IPと8080)
-                         + str(private_key) + '&' + 'blockchain_address=' + str(blockchain_address))
-        name = str(port) + "'s_address.png"
-        result.save(name)

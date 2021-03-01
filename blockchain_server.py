@@ -4,7 +4,6 @@ from flask import request
 
 import wallet
 import blockchain
-import utils
 
 app = Flask(__name__)
 cache = {}
@@ -14,8 +13,6 @@ def get_blockchain():
     cached_blockchain = cache.get('blockchain')
     if not cached_blockchain:
         miners_wallet = wallet.Wallet()
-        utils.generate_qrcode(private_key=miners_wallet.private_key,
-                              blockchain_address=miners_wallet.blockchain_address, port=app.config['port'])
         cache['blockchain'] = blockchain.BlockChain(
             blockchain_address=miners_wallet.blockchain_address,
             port=app.config['port'])
@@ -99,21 +96,6 @@ def transaction():
         return jsonify({'message': 'success'}), 200
 
 
-# @app.route('/mine', methods=['GET'])
-# def mine():
-#     block_chain = get_blockchain()
-#     is_mined = block_chain.mining()
-#     if is_mined:
-#         return jsonify({'message': 'success'}), 200
-#     return jsonify({'message': 'fail'}), 400
-
-
-# @app.route('/mine/start', methods=['GET'])
-# def start_mine():
-#     get_blockchain().start_mining()
-#     return jsonify({'message': 'success'}), 200
-
-
 @app.route('/consensus', methods=['PUT'])
 def consensus():
     block_chain = get_blockchain()
@@ -128,21 +110,6 @@ def get_total_amount():
         'amount': get_blockchain().calculate_total_amount(blockchain_address)
     }), 200
 
-
-##################spv###################
-
-
-@app.route('/hashrate', methods=['GET'])
-def get_rate():
-    block_chain = get_blockchain()
-    oneblock_time = (block_chain.chain[-1]['timestamp'] - block_chain.chain[-11]['timestamp']) / 10
-    rate = 2 ** (blockchain.MINING_DIFFICULTY * 4) / oneblock_time
-    response = {
-        'rate': rate
-    }
-    return jsonify(response), 200
-
-
 @app.route('/transaction_aggregation', methods=['GET'])
 @app.route('/transaction_aggregation/<start>', methods=['GET'])
 def get_transaction_aggregation(start=0):
@@ -151,8 +118,6 @@ def get_transaction_aggregation(start=0):
         'transaction_aggregation': block_chain.transaction_aggregation[start:]
     }
     return jsonify(response), 200
-
-
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
