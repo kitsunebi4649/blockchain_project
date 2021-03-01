@@ -6,7 +6,6 @@ import sys
 import time
 import threading
 
-# from ecdsa import NIST256p
 from ecdsa import SECP256k1
 from ecdsa import VerifyingKey
 import requests

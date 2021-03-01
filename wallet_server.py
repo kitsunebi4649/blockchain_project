@@ -5,7 +5,6 @@ from flask import jsonify
 from flask import render_template
 from flask import request
 import requests
-# from ecdsa import NIST256p
 from ecdsa import SECP256k1
 from ecdsa import SigningKey
 import base58
@@ -15,12 +14,12 @@ import wallet
 app = Flask(__name__, template_folder='./templates')
 
 
-@app.route('/')
+@app.route('/wallet')
 def index():
-    return render_template('./index.html')
+    return render_template('./wallet/index.html')
 
 
-@app.route('/wallet', methods=['POST'])
+@app.route('/wallet/create', methods=['POST'])
 def create_wallet():
     my_wallet = wallet.Wallet()
     response = {
@@ -45,7 +44,6 @@ def create_transaction():  #TODO
     )   # 必須事項を示す 1
     if not all(k in request_json for k in required):
         return 'missing values', 400
-
     sender_private_key = request_json['sender_private_key']
     private_key_bytes = SigningKey.from_string(
         bytes().fromhex(sender_private_key), curve=SECP256k1)
@@ -106,7 +104,7 @@ def calculate_amount():
     return jsonify({'message': 'fail', 'error': response.content}), 400
 
 
-@app.route('/wallet/amount/create_new_blockchain_address', methods=['GET'])  #TODO
+@app.route('/wallet/reload_blockchain_address', methods=['GET'])  #TODO
 def create_new_blockchain_address():
     required = ['private_key']
     if not all(k in request.args for k in required):

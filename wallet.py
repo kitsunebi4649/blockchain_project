@@ -2,7 +2,6 @@ import base58
 # import codecs
 import hashlib
 
-# from ecdsa import NIST256p
 from ecdsa import SECP256k1
 from ecdsa import SigningKey
 # import qrcode
